@@ -1,25 +1,45 @@
 pipeline {
     agent any
 
+    environment {
+        // Define environment variables like remote instance details
+        REMOTE_HOST = 'your.remote.server.ip'
+        REMOTE_USER = 'your-ssh-username'
+        REMOTE_PATH = '/path/to/your/flask/app'
+        SSH_KEY_ID = 'your-ssh-credentials-id' // Jenkins credentials ID for SSH Key
+        GIT_REPO = 'https://github.com/Sangameshwar-652/python-flask-app.git' // Replace with your repo URL
+        GIT_BRANCH = 'main' // Replace with your desired branch
+    }
+
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Code') {
             steps {
-                git 'https://github.com/yourusername/your-repo.git'
+                // Checkout the code from your Git repository
+                git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Set up Python Environment') {
             steps {
                 script {
-                    docker.build('flask-app')
+                    // Create a virtual environment on the remote server
+                    sh """
+                    pip install -r requirements.txt
+                    """
                 }
             }
         }
-        stage('Run Container') {
+        stage('Deploy to Remote Server') {
             steps {
                 script {
-                    docker.run('flask-app', '-p 5000:5000')
+                    // Deploy the app to the remote server
+                    sh """
+                    scp -i ${SSH_KEY_ID} -r ./ ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}
+                    ssh -i ${SSH_KEY_ID} ${REMOTE_USER}@${REMOTE_HOST} 
+                    """
                 }
             }
         }
+
     }
 }
