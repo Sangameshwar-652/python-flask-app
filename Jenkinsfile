@@ -27,10 +27,9 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    sh '''
-                        export PATH=$PATH:/var/lib/jenkins/.local/bin
-                        pytest
-                    '''
+                    sh 
+                        'pytest'
+                    
                 }
             }
         }
