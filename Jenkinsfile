@@ -32,22 +32,6 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to EC2') {
-            steps {
-                script {
-                   sh '''#!/bin/bash
-                    set -e
-                    npm install -g pm2
-                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_IP << EOF
-                    cd $REMOTE_DIR
-                    git pull origin main
-                    pip install -r requirements.txt
-                    pm2 restart flask-app || pm2 start app.py --name flask-app
-                    EOF
-                    '''
-                }
-            }
-       }
      }
 }
 
