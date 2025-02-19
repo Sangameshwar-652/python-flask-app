@@ -3,10 +3,10 @@ pipeline {
 
     environment {
         // Define environment variables like remote instance details
-        REMOTE_HOST = 'your.remote.server.ip'
-        REMOTE_USER = 'your-ssh-username'
-        REMOTE_PATH = '/path/to/your/flask/app'
-        SSH_KEY_ID = 'your-ssh-credentials-id' // Jenkins credentials ID for SSH Key
+        REMOTE_HOST = '34.227.163.177'
+        REMOTE_USER = 'Production'
+        REMOTE_PATH = '/root/flask-app'
+        SSH_KEY_ID = '/root/dey.pem' // Jenkins credentials ID for SSH Key
         GIT_REPO = 'https://github.com/Sangameshwar-652/python-flask-app.git' // Replace with your repo URL
         GIT_BRANCH = 'main' // Replace with your desired branch
     }
