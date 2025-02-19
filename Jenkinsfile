@@ -34,3 +34,16 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to EC2') {
+            steps {
+                script {
+                    // Deploy to EC2
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "cd ${REMOTE_DIR} && git pull origin main && source /home/${EC2_USER}/.virtualenvs/${APP_NAME}/bin/activate && pip install -r requirements.txt && sudo systemctl restart ${APP_NAME}"
+                    '''
+                }
+            }
+        }
+    }
+}
