@@ -22,22 +22,16 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to EC2') {
+        stage('Run Tests') {
             steps {
                 script {
-                   sh '''#!/bin/bash
-                    set -e
-                    npm install -g pm2
-                    ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_IP << EOF
-                    cd $REMOTE_DIR
-                    git pull origin main
-                    pip install -r requirements.txt
-                    pm2 restart flask-app || pm2 start app.py --name flask-app
-                    EOF
-                    '''
+                sh '''
+                export PATH=$PATH:/var/lib/jenkins/.local/bin
+                pytest
+                '''        
                 }
             }
-       }
+        }
      }
 }
 
