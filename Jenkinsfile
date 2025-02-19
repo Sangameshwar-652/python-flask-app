@@ -32,7 +32,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to EC2') {
             steps {
                 script {
@@ -45,7 +44,13 @@ pipeline {
                     pip install -r requirements.txt
                     pm2 restart flask-app || pm2 start app.py --name flask-app
                     EOF
+                    '''
                 }
             }
-    }
+       }
+     }
 }
+
+
+
+
