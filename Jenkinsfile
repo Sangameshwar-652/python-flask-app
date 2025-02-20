@@ -48,7 +48,7 @@ pipeline {
             steps {
                 script {
                     // Use SSH credentials for EC2 connection
-                    withCredentials([sshUserPrivateKey(credentialsId: 'dev', keyFileVariable: 'SSH_KEY')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<'EOF'
                                 # Check if container is running and stop if necessary
