@@ -7,8 +7,6 @@ pipeline {
         EC2_USER = 'ec2-user'
         EC2_IP = '172.31.84.177'
         REMOTE_DIR = '/home/ec2-user/your-flask-app'
-        DOCKER_USERNAME = credentials('docker-username') // Replace with Jenkins credential ID
-        DOCKER_PASSWORD = credentials('docker-password') // Replace with Jenkins credential ID
     }
 
     stages {
@@ -49,20 +47,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Log into Docker registry (if required)
-                    sh '''
-                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                    '''
-
-                    // Optional: Push the image to Docker registry
-                    // sh 'docker push $DOCKER_USERNAME/$APP_NAME'
-
                     // Use SSH credentials for EC2 connection
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
-                                # Pull the Docker image from the registry (if it's pushed)
-                                docker pull $APP_NAME
 
                                 # Stop and remove any existing container with the same name
                                 docker stop \$(docker ps -q --filter "name=$APP_NAME") || true
