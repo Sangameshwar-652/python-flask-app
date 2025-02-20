@@ -55,21 +55,24 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-
-                         // Log into Docker registry (if required)
-                    sh '''
-                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                    '''
-
-                    // Optional: Push the image to Docker registry
-                    sh 'docker push $DOCKER_USERNAME/$APP_NAME'
-
                     // Use SSH credentials for EC2 connection
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
+                                # Navigate to the project directory
+                                cd $REMOTE_DIR
 
-                                
+                                # Pull the latest changes
+                                git pull origin main
+
+                                # Install any new dependencies (if necessary)
+                                pip install -r requirements.txt
+
+                                # Stop the Flask app if it's already running
+                                pkill -f 'flask run' || true
+
+                                # Run the Flask app
+                                nohup flask run --host=0.0.0.0 --port=5000 &
 
                             EOF
                         """
