@@ -48,12 +48,28 @@ pipeline {
             steps {
                 script {
                     // Use SSH credentials for EC2 connection
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'dev', keyFileVariable: 'SSH_KEY')]) {
                         sh """
-                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
-                                # Stop and remove any existing container with the same name
-                                docker stop \$(docker ps -q --filter "name=$APP_NAME") || true
-                                docker rm \$(docker ps -a -q --filter "name=$APP_NAME") || true
+                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<'EOF'
+                                # Check if container is running and stop if necessary
+                                if [ \$(docker ps -q --filter "name=$APP_NAME") ]; then
+                                    docker stop \$(docker ps -q --filter "name=$APP_NAME")
+                                fi
+
+                                # Check if container exists and remove if necessary
+                                if [ \$(docker ps -a -q --filter "name=$APP_NAME") ]; then
+                                    docker rm \$(docker ps -a -q --filter "name=$APP_NAME")
+                                fi
+
+                                # Pull or build the Docker image on the EC2 instance
+                                # If not using a registry, you could copy the image from Jenkins to EC2
+                                docker load -i /tmp/$APP_NAME.tar || true
+
+                                # If the image is not available, build it on EC2
+                                if ! docker images -q $APP_NAME; then
+                                    cd $REMOTE_DIR
+                                    docker build -t $APP_NAME .
+                                fi
 
                                 # Run the Flask app in a Docker container
                                 docker run -d --name $APP_NAME -p 80:5000 $APP_NAME
@@ -61,8 +77,8 @@ pipeline {
                         """
                     }
                 }
-           }
-       }
+            }
+        }
     }
  }
 
