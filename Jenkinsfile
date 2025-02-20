@@ -65,9 +65,6 @@ pipeline {
                                 # Pull the latest changes
                                 git pull origin main
 
-                                # Install any new dependencies (if necessary)
-                                pip install -r requirements.txt
-
                                 # Stop the Flask app if it's already running
                                 pkill -f 'flask run' || true
 
