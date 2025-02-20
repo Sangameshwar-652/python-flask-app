@@ -10,6 +10,11 @@ pipeline {
     }
 
     stages {
+        stage ("Clean") {
+            steps {
+                cleanWs()
+            }
+        }
         stage('Checkout Code') {
             steps {
                 git url: 'https://github.com/Sangameshwar-652/python-flask-app.git', branch: 'main'
@@ -51,8 +56,6 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
-                                # Build the Docker image on the EC2 instance if necessary
-                                # docker build -t $APP_NAME .  # Uncomment if needed on EC2 instance
 
                                 # Stop and remove any existing container with the same name
                                 docker stop \$(docker ps -q --filter "name=$APP_NAME") || true
@@ -60,6 +63,7 @@ pipeline {
 
                                 # Run the Flask app in a Docker container
                                 docker run -d --name $APP_NAME -p 80:5000 $APP_NAME
+
                             EOF
                         """
                     }
