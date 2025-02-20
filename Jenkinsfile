@@ -7,6 +7,8 @@ pipeline {
         EC2_USER = 'ec2-user'
         EC2_IP = '172.31.84.177'
         REMOTE_DIR = '/home/ec2-user/your-flask-app'
+        DOCKER_USERNAME = credentials('docker-username') // Replace with Jenkins credential ID
+        DOCKER_PASSWORD = credentials('docker-password') // Replace with Jenkins credential ID
     }
 
     stages {
