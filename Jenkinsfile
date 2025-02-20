@@ -70,7 +70,10 @@ pipeline {
 
                                 # Install dependencies
                                 cd $REMOTE_DIR
-                                pip install -r requirements.txt
+                                python3 --version
+                                python3 -m pip install --upgrade pip'
+                                python3 -m pip install -r requirements.txt'
+
 
 
                                 # Stop the Flask app if it's already running
