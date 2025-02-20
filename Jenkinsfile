@@ -48,21 +48,18 @@ pipeline {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh '''
-                            # Deploy to EC2 instance
-                            echo "Starting deployment..."
+                            echo "Deploying application to EC2..."
 
-                            # SSH into EC2 instance and pull the latest code
+                            # SSH into the EC2 instance and execute deployment commands
                             ssh -i $SSH_KEY $EC2_USER@$EC2_IP << 'EOF'
                                 cd $REMOTE_DIR
-                                git pull origin main
-                                source /home/$EC2_USER/.bash_profile  # Activate virtualenv or required env
-                                 # Install dependencies
-                                python3 -m pip install -r requirements.txt
-                                # Restart the Flask app service
-                                sudo systemctl restart flask-app.service || echo "Flask app service not found!"
+                                git pull origin main  # Pull the latest code
+                                source /home/$EC2_USER/.bash_profile  # Load virtual environment or settings
+                                python3 -m pip install -r requirements.txt  # Install dependencies on the remote server
+                                sudo systemctl restart flask-app.service || echo "Flask app service not found!"  # Restart the app
                             EOF
 
-                            echo "Deployment complete!"
+                            echo "Deployment completed successfully!"
                         '''
                     }
                 }
