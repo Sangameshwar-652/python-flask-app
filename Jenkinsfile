@@ -81,7 +81,7 @@ pipeline {
             """
             
             // Use SSH credentials for EC2 connection
-            withCredentials([sshUserPrivateKey(credentialsId: 'ssh-', keyFileVariable: 'SSH_KEY')]) {
+            withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                 sh """
                     # Copy the deploy script to EC2
                     scp -i \$SSH_KEY deploy_script.sh \$EC2_USER@$EC2_IP:/home/\$EC2_USER/
