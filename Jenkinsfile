@@ -57,17 +57,17 @@ pipeline {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
 
-                            # Check if any container with the name exists and stop/remove it
+                                # Check if any container with the name exists and stop/remove it
                                 CONTAINER_ID=\$(docker ps -q --filter "name=$APP_NAME")
                                 if [ -n "\$CONTAINER_ID" ]; then
                                     docker stop \$CONTAINER_ID
                                     docker rm \$CONTAINER_ID
                                 fi
 
-                                # If image exists, run it, otherwise build the image
+                                # Check if the image exists locally, if not, build it
                                 if ! docker image inspect $APP_NAME > /dev/null 2>&1; then
-                                    echo "Image $APP_NAME not found locally. Pulling image..."
-                                    docker pull $APP_NAME
+                                    echo "Image $APP_NAME not found locally. Building the image..."
+                                    docker build -t $APP_NAME .
                                 fi
 
                                 # Run the Flask app in a Docker container
