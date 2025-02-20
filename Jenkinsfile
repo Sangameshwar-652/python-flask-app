@@ -45,29 +45,29 @@ pipeline {
             }
         }
         stage('Deploy') {
-            steps {
-                script {
-                    // Use SSH credentials for EC2 connection
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
+    steps {
+        script {
+            // Use SSH credentials for EC2 connection
+            withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
+                sh """
+                    ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<'EOF'
+                        # Navigate to the deployment directory
+                        cd $REMOTE_DIR || mkdir -p $REMOTE_DIR && cd $REMOTE_DIR
 
-                               # Navigate to the deployment directory
-                                cd $REMOTE_DIR || mkdir -p $REMOTE_DIR && cd $REMOTE_DIR
+                        # Pull the latest code and update the app
+                        git pull origin main
 
-                                # Pull the latest code and update the app
-                                git pull origin main
+                        # Install dependencies on EC2 (if not installed)
+                        pip install -r requirements.txt
 
-                                # Start the Flask app (ensure it's running in the background)
-                                nohup python3 $FLASK_APP &> flask_app.log &
-                            
-                            EOF
-                        """
-                    }
-                }
+                        # Start the Flask app (ensure it's running in the background)
+                        nohup python3 $FLASK_APP &> flask_app.log &
+                    EOF
+                """
             }
         }
-
+    }
+}
     }
  }
 
