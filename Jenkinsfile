@@ -57,9 +57,6 @@ pipeline {
                         # Pull the latest code and update the app
                         git pull origin main
 
-                        # Install dependencies on EC2 (if not installed)
-                        python3 -m pip install -r requirements.txt
-
                         # Start the Flask app (ensure it's running in the background)
                         nohup python3 $FLASK_APP &> flask_app.log &
                     EOF
