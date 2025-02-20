@@ -56,9 +56,10 @@ pipeline {
                                 cd $REMOTE_DIR
                                 git pull origin main
                                 source /home/$EC2_USER/.bash_profile  # Activate virtualenv or required env
-                                pip install -r requirements.txt
-                                # Restart the Flask app
-                                sudo systemctl restart flask-app.service
+                                 # Install dependencies
+                                python3 -m pip install -r requirements.txt
+                                # Restart the Flask app service
+                                sudo systemctl restart flask-app.service || echo "Flask app service not found!"
                             EOF
 
                             echo "Deployment complete!"
