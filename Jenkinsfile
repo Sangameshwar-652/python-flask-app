@@ -44,14 +44,6 @@ pipeline {
                 }
             }
         }
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    // Build Docker image from the current directory
-                    sh 'docker build -t $APP_NAME .'
-                }
-            }
-        }
         stage('Deploy') {
             steps {
                 script {
