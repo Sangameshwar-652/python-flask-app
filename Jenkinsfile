@@ -59,11 +59,19 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
-                                # Navigate to the project directory
-                                cd $REMOTE_DIR
+                                if [ ! -d "$REMOTE_DIR" ]; then
+                                    echo "Cloning repository to $REMOTE_DIR"
+                                    git clone https://github.com/Sangameshwar-652/python-flask-app.git $REMOTE_DIR
+                                else
+                                    echo "Directory $REMOTE_DIR exists, pulling latest changes"
+                                    cd $REMOTE_DIR
+                                    git pull origin main
+                                fi
 
-                                # Pull the latest changes
-                                git pull origin main
+                                # Install dependencies
+                                cd $REMOTE_DIR
+                                pip install -r requirements.txt
+
 
                                 # Stop the Flask app if it's already running
                                 pkill -f 'flask run' || true
