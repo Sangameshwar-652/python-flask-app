@@ -5,7 +5,7 @@ pipeline {
         FLASK_APP = 'app.py'
         APP_NAME = 'flask-app'
         EC2_USER = 'ec2-user'
-        EC2_IP = '54.205.142.1'
+        EC2_IP = '172.31.84.177'
         REMOTE_DIR = '/home/ec2-user/your-flask-app'
     }
 
@@ -34,16 +34,35 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy to EC2') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    // Deploy to EC2
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "cd ${REMOTE_DIR} && git pull origin main && source /home/${EC2_USER}/.virtualenvs/${APP_NAME}/bin/activate && pip install -r requirements.txt && sudo systemctl restart ${APP_NAME}"
-                    '''
+                    // Build Docker image from the current directory
+                    sh 'docker build -t $APP_NAME .'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY')]) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
+                                # Pull the Docker image from the registry (if it's pushed)
+                                docker pull $APP_NAME
+
+                                # Stop and remove any existing container with the same name
+                                docker stop \$(docker ps -q --filter "name=$APP_NAME") || true
+                                docker rm \$(docker ps -a -q --filter "name=$APP_NAME") || true
+
+                                # Run the Flask app in a Docker container
+                                docker run -d --name $APP_NAME -p 80:5000 $APP_NAME
+                            EOF
+                        """
+                    }
                 }
             }
         }
     }
-}
+ }
+
