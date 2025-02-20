@@ -51,6 +51,7 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
+                                docker pull $APP_NAME
 
                                 # Run the Flask app in a Docker container
                                 docker run -d --name $APP_NAME -p 80:5000 $APP_NAME
