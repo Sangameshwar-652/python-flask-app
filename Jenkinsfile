@@ -47,7 +47,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-credentials', keyFileVariable: 'SSH_KEY')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh', keyFileVariable: 'SSH_KEY')]) {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
                                 # Pull the Docker image from the registry (if it's pushed)
