@@ -52,10 +52,6 @@ pipeline {
                         sh """
                             ssh -o StrictHostKeyChecking=no -i \$SSH_KEY \$EC2_USER@$EC2_IP <<EOF
 
-                                # Stop and remove any existing container with the same name
-                                docker stop \$(docker ps -q --filter "name=$APP_NAME") || true
-                                docker rm \$(docker ps -a -q --filter "name=$APP_NAME") || true
-
                                 # Run the Flask app in a Docker container
                                 docker run -d --name $APP_NAME -p 80:5000 $APP_NAME
                             EOF
